@@ -43,6 +43,7 @@ class MonologFormatter extends LineFormatter implements FormatterInterface
      */
     public function format(array $record)
     {
+        $record = $this->stsContext($record);
         $record = $this->normalize($record);
         $data = $this->getLogData($record);
         $output = sprintf('%s  priority=%s', $record['datetime'], $record['level_name']);
@@ -57,6 +58,40 @@ class MonologFormatter extends LineFormatter implements FormatterInterface
             $output .= sprintf(', exception="%s"', $this->stringify($data['exception']));
         }
         return $output . "\n";
+    }
+
+    /** Ensure we have out context info added the way we like it. */
+    protected function stsContext(array $record): array
+    {
+        $record['context']['transactionID'] = $this->transactionID;
+        $record['context']['environment'] = env('APP_ENV', 'unknown');
+        $record['context']['httpHost'] = 'CLI';
+
+        // Add some core parameters
+        if ($this->exists('HTTP_HOST', $_SERVER)) {
+            $record['context']['httpHost'] = $_SERVER['HTTP_HOST'];
+        }
+
+        if ($this->exists('REMOTE_ADDR')) {
+            $record['context']['IP'] = $_SERVER['REMOTE_ADDR'];
+        }
+        if ($this->exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
+            $record['context']['IP'] = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        }
+
+        if (env('CORRELATION_ID', false) !== false) {
+            $record['context']['correlationID'] = $_ENV['CORRELATION_ID'];
+        }
+        if (env('PLANROOM_HOST', false) !== false) {
+            $record['context']['planroomHost'] = env('PLANROOM_HOST');
+        }
+
+        return $record;
+    }
+
+    protected function exists(string $key): bool
+    {
+        return array_key_exists($key, $_SERVER);
     }
 
     /**
