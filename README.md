@@ -54,14 +54,14 @@ return [
         ],
         'single' => [
             'driver' => 'single',
-            'tap' => [Illuminate\Log\Logger\MonologTap::class],
-            'path' => '/var/log/local/' . env('APP_NAME') . '.log',
+            'tap' => [STS\Logging\MonologTap::class],
+            'path' => '/var/log/local/' . strtolower(env('APP_NAME')) . '.log',
             'level' => env('LOG_LEVEL', 'debug'),
         ],
         'stderr' => [
             'driver' => 'monolog',
             'handler' => StreamHandler::class,
-            'tap' => [Illuminate\Log\Logger\MonologTap::class],
+            'tap' => [STS\Logging\MonologTap::class],
             'with' => [
                 'stream' => 'php://stderr',
             ],
