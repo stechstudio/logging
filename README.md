@@ -1,4 +1,14 @@
 ## Install
+First, add the private repository to your `composer.json` file like so:
+```json
+"repositories": [
+  {
+    "type": "vcs",
+    "url": "git@github.com:stechstudio/logging.git"
+  }
+]
+```
+Then you can just run composer:
 ```
 composer require stechstudio/logging
 ```
