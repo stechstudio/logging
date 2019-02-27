@@ -56,6 +56,7 @@ return [
             'driver' => 'single',
             'tap' => [STS\Logging\MonologTap::class],
             'path' => '/var/log/local/' . strtolower(env('APP_NAME')) . '.log',
+            'permission' => 0664,
             'level' => env('LOG_LEVEL', 'debug'),
         ],
         'stderr' => [
