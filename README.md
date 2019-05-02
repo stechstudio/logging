@@ -47,6 +47,11 @@ return [
     |
     */
     'channels' => [
+        'lambda_stack' => [
+            'driver' => 'stack',
+            'channels' => ['stderr', 'logentries'],
+            'ignore_exceptions' => false,
+        ],
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],
@@ -65,6 +70,15 @@ return [
             'tap' => [STS\Logging\MonologTap::class],
             'with' => [
                 'stream' => 'php://stderr',
+            ],
+        ],
+        'logentries' => [
+            'driver' => 'monolog',
+            'level' => env('LOG_LEVEL', 'debug'),
+            'handler' => LogEntriesHandler::class,
+            'tap' => [MonologTap::class],
+            'with' => [
+                'token' => env('LOGENTRIES_TOKEN'),
             ],
         ],
         'syslog' => [
