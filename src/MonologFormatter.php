@@ -29,19 +29,21 @@ class MonologFormatter extends LineFormatter implements FormatterInterface
     public function __construct(
         ?string $format = null,
         ?string $dateFormat = null,
-        bool $allowInlineLineBreaks = false,
-        bool $ignoreEmptyContextAndExtra = false
+        ?bool $allowInlineLineBreaks =  null,
+        ?bool $ignoreEmptyContextAndExtra =  null
     ) {
+        $dateFormat = $dateFormat?: DateTime::ISO8601;
+        $allowInlineLineBreaks = $allowInlineLineBreaks?: false;
+        $ignoreEmptyContextAndExtra = $ignoreEmptyContextAndExtra?: false;
+
         $this->transactionID = uniqid();
-        parent::__construct($format, DateTime::ISO8601, $allowInlineLineBreaks, $ignoreEmptyContextAndExtra);
+        parent::__construct($format, $dateFormat, $allowInlineLineBreaks, $ignoreEmptyContextAndExtra);
     }
 
     /**
      * Formats a log record.
-     *
-     * @return mixed The formatted record
      */
-    public function format(array $record)
+    public function format(array $record): string
     {
         $record = $this->stsContext($record);
         $record = $this->normalize($record);
@@ -89,9 +91,10 @@ class MonologFormatter extends LineFormatter implements FormatterInterface
         return $record;
     }
 
-    protected function exists(string $key): bool
+    protected function exists(string $key, ?array $collection = []): bool
     {
-        return array_key_exists($key, $_SERVER);
+        $collection = $collection?: $_SERVER;
+        return array_key_exists($key, $collection);
     }
 
     /**
