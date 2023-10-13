@@ -105,6 +105,12 @@ class MonologFormatter extends LineFormatter implements FormatterInterface
      */
     protected function normalize(mixed $data, int $depth = 0): mixed
     {
+        // Convert $data from Monolog 3 LogRecord to Monolog 1/2 style array.
+        // https://github.com/Seldaek/monolog/blob/main/UPGRADE.md#300
+        if ($data instanceof LogRecord) {
+            $data = $data->toArray();
+        }
+
         if (is_array($data) &&
             isset($data['message']) &&
             substr($data['message'], 0, 9) === 'exception' &&
