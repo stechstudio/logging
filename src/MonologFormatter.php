@@ -103,7 +103,7 @@ class MonologFormatter extends LineFormatter implements FormatterInterface
      *
      * @return mixed
      */
-    protected function normalize(mixed $data, int $depth = 0)
+    protected function normalize(mixed $data, int $depth = 0): mixed
     {
         if (is_array($data) &&
             isset($data['message']) &&
