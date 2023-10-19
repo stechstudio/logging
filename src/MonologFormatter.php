@@ -11,20 +11,21 @@ namespace STS\Logging;
 use DateTime;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\LineFormatter;
+use Monolog\LogRecord;
 
 class MonologFormatter extends LineFormatter implements FormatterInterface
 {
     /** @var string */
-    protected $dateFormat = 'c';
+    protected string $dateFormat = 'c';
 
     /** @var string */
     protected $transactionID;
 
     /** @var bool */
-    protected $allowInlineLineBreaks = true;
+    protected bool $allowInlineLineBreaks = true;
 
     /** @var bool */
-    protected $includeStacktraces = false;
+    protected bool $includeStacktraces = false;
 
     public function __construct(
         ?string $format = null,
@@ -43,7 +44,7 @@ class MonologFormatter extends LineFormatter implements FormatterInterface
     /**
      * Formats a log record.
      */
-    public function format(array $record): string
+    public function format(LogRecord $record): string
     {
         $record = $this->stsContext($record);
         $record = $this->normalize($record);
@@ -63,7 +64,7 @@ class MonologFormatter extends LineFormatter implements FormatterInterface
     }
 
     /** Ensure we have out context info added the way we like it. */
-    protected function stsContext(array $record): array
+    protected function stsContext(LogRecord $record): LogRecord
     {
         $record['context']['transactionID'] = $this->transactionID;
         $record['context']['environment'] = env('APP_ENV', 'unknown');
@@ -102,8 +103,14 @@ class MonologFormatter extends LineFormatter implements FormatterInterface
      *
      * @return mixed
      */
-    protected function normalize($data, $depth = 0)
+    protected function normalize(mixed $data, int $depth = 0): mixed
     {
+        // Convert $data from Monolog 3 LogRecord to Monolog 1/2 style array.
+        // https://github.com/Seldaek/monolog/blob/main/UPGRADE.md#300
+        if ($data instanceof LogRecord) {
+            $data = $data->toArray();
+        }
+
         if (is_array($data) &&
             isset($data['message']) &&
             substr($data['message'], 0, 9) === 'exception' &&
